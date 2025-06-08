@@ -29,11 +29,9 @@ def create_app(config_class=None):
     
     # Carregar configurações
     if config_class is None:
-        # Importar configuração padrão
         from config import active_config
         app.config.from_object(active_config)
     else:
-        # Usar configuração específica
         app.config.from_object(config_class)
     
     # Inicializar extensões
@@ -49,12 +47,14 @@ def create_app(config_class=None):
     from app.routes.clients import clients_bp
     from app.routes.products import products_bp
     from app.routes.dashboard import dashboard_bp
-    
+    from app.routes.webhook import webhook_bp
+
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(clients_bp, url_prefix="/api/clients")
     app.register_blueprint(products_bp, url_prefix="/api/products")
     app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
-    
+    app.register_blueprint(webhook_bp)  # ✅ Agora está dentro da função correta
+
     # Rota de verificação de saúde
     @app.route("/api/health")
     def health_check():
@@ -65,16 +65,10 @@ def create_app(config_class=None):
     def serve_frontend():
         return send_from_directory(app.static_folder, 'index.html')
     
-    # Rota para qualquer outra página do frontend
     @app.route('/<path:path>')
     def serve_frontend_paths(path):
-        # Verificar se o arquivo existe no diretório estático
         if os.path.exists(os.path.join(app.static_folder, path)):
             return send_from_directory(app.static_folder, path)
-        # Caso contrário, retornar index.html para rotas do frontend
         return send_from_directory(app.static_folder, 'index.html')
 
-from app.routes.webhook import webhook_bp
-app.register_blueprint(webhook_bp)    
-    
     return app
