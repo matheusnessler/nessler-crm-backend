@@ -71,4 +71,7 @@ def create_app(config_class=None):
             return send_from_directory(app.static_folder, path)
         return send_from_directory(app.static_folder, 'index.html')
 
+from app.routes.webhook import webhook_bp
+app.register_blueprint(webhook_bp)
+    
     return app
